@@ -1,38 +1,38 @@
 #!/usr/bin/python3
-"""
-This module containts an api request
-"""
-import requests
-import sys
+""" module use urllib or requests api """
 
-
-def gather_data_from_api():
-    """
-        This function gather data from an api
-    """
-
-    url_todo = 'https://jsonplaceholder.typicode.com/todos?userId='
-    url_name = 'https://jsonplaceholder.typicode.com/users?id='
-    response_todo = requests.get(url_todo + sys.argv[1])
-    response_name = requests.get(url_name + sys.argv[1])
-
-    content_todo = list(response_todo.json())
-    content_name = list(response_name.json())
-
-    task_completed = 0
-    total_tasks = 0
-    completed_tasks = []
-    for elem in content_todo:
-        if elem['completed']:
-            task_completed += 1
-            completed_tasks.append(elem['title'])
-        total_tasks += 1
-
-    print("Employee {} is done with tasks({}/{}):".format(
-        content_name[0]['name'], task_completed, total_tasks))
-    for elem in completed_tasks:
-        print('\t ' + elem)
+from requests import get
+from sys import argv
 
 
 if __name__ == "__main__":
-    gather_data_from_api()
+
+    # First we connect/open/read/loads to the data url users
+    url_first = get('https://jsonplaceholder.typicode.com/todos/')
+    data_url_first = url_first.json()
+    completed = 0
+    TOTAL_NUMBER_OF_TASKS = 0
+    NUMBER_OF_DONE_TASKS = []
+
+    # Second we connect/open/read/loads to the data url todos
+    url_second = get('https://jsonplaceholder.typicode.com/users/')
+    data_url_second = url_second.json()
+
+    for i in data_url_first:
+        if i.get('userId') == int(argv[1]):
+            TOTAL_NUMBER_OF_TASKS += 1
+
+            if i.get('completed') is True:
+                completed += 1
+                NUMBER_OF_DONE_TASKS.append(i.get('title'))
+
+    for i in data_url_second:
+        if i.get('id') == int(argv[1]):
+            employee = i.get('name')
+
+    # Format the name of the completed tasks
+    print("Employee {} is done with tasks({}/{}):".format(
+        employee, completed, TOTAL_NUMBER_OF_TASKS))
+
+    for NUMBER_OF_DONE_TASKS in NUMBER_OF_DONE_TASKS:
+        print("\t {}".format(NUMBER_OF_DONE_TASKS))
