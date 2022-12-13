@@ -1,30 +1,38 @@
 #!/usr/bin/python3
-"""script that, using this REST API, for a given employee ID, returns
-information about his/her TODO list progress."""
-import requests
+""" module use urllib or requests api """
+
+from requests import get
 from sys import argv
 
+
 if __name__ == "__main__":
-    if len(argv) > 1:
-        user = argv[1]
-        url = "https://jsonplaceholder.typicode.com/"
-        req = requests.get("{}users/{}".format(url, user))
-        name = req.json().get("name")
-        
-        if name is not None:
-            jreq = requests.get(
-                "{}todos?userId={}".format(url, user)).json()
 
-            alltsk = len(jreq)
-            completedtsk = []
+    # First we connect/open/read/loads to the data url users
+    url_first = get('https://jsonplaceholder.typicode.com/todos/')
+    data_url_first = url_first.json()
+    completed = 0
+    TOTAL_NUMBER_OF_TASKS = 0
+    NUMBER_OF_DONE_TASKS = []
 
-            for t in jreq:
-                if t.get("completed") is True:
-                    completedtsk.append(t)
+    # Second we connect/open/read/loads to the data url todos
+    url_second = get('https://jsonplaceholder.typicode.com/users/')
+    data_url_second = url_second.json()
 
-            count = len(completedtsk)
-            print("Employee {} is done with tasks({}/{}):"
-                  .format(name, count, alltsk))
+    for i in data_url_first:
+        if i.get('userId') == int(argv[1]):
+            TOTAL_NUMBER_OF_TASKS += 1
 
-            for title in completedtsk:
-                print("\t {}".format(title.get("title")))
+            if i.get('completed') is True:
+                completed += 1
+                NUMBER_OF_DONE_TASKS.append(i.get('title'))
+
+    for i in data_url_second:
+        if i.get('id') == int(argv[1]):
+            employee = i.get('name')
+
+    # Format the name of the completed tasks
+    print("Employee {} is done with tasks({}/{}):".format(
+        employee, completed, TOTAL_NUMBER_OF_TASKS))
+
+    for NUMBER_OF_DONE_TASKS in NUMBER_OF_DONE_TASKS:
+        print("\t {}".format(NUMBER_OF_DONE_TASKS))
